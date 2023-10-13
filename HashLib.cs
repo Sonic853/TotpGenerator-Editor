@@ -137,6 +137,12 @@ namespace Sonic853.TotpGen
             {
                 key = SHA1(key);
             }
+            else if (key.Length < 64)
+            {
+                byte[] newKey = new byte[64];
+                key.CopyTo(newKey, 0);
+                key = newKey;
+            }
 
             byte[] ipad = new byte[64];
             byte[] opad = new byte[64];

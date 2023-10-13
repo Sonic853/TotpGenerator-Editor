@@ -16,117 +16,15 @@ namespace Sonic853.TotpGen
     {
         private static readonly string path = "Assets/853Lab/TotpGenerator/";
         private static readonly string s_StyleSheetPath = path + "StyleSheets/TotpGenerator.uss";
-        private static string base_32_chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
-        private static string[] Base32Chars = new string[] { "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z", "2", "3", "4", "5", "6", "7" };
-        private static string lower = "abcdefghijklmnopqrstuvwxyz";
-        private static string upper = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-        private static string numbers = "0123456789";
-        private static string special = @"!@#$%^&*()-_ []{}<>~`+=,.;:/?|";
-        public static string issuer
-        {
-            get
-            {
-                return EditorPrefs.GetString("Sonic853.TotpGenerator.issuer", "");
-            }
-            set
-            {
-                EditorPrefs.SetString("Sonic853.TotpGenerator.issuer", value);
-            }
-        }
-        public static string algorithm
-        {
-            get
-            {
-                return EditorPrefs.GetString("Sonic853.TotpGenerator.algorithm", "SHA1");
-            }
-            set
-            {
-                EditorPrefs.SetString("Sonic853.TotpGenerator.algorithm", value);
-            }
-        }
-        public static int period
-        {
-            get
-            {
-                return EditorPrefs.GetInt("Sonic853.TotpGenerator.period", 30);
-            }
-            set
-            {
-                if (value < 1)
-                {
-                    value = 30;
-                }
-                EditorPrefs.SetInt("Sonic853.TotpGenerator.period", value);
-            }
-        }
-        public static int digits
-        {
-            get
-            {
-                return EditorPrefs.GetInt("Sonic853.TotpGenerator.digits", 6);
-            }
-            set
-            {
-                if (value < 1)
-                {
-                    value = 6;
-                }
-                EditorPrefs.SetInt("Sonic853.TotpGenerator.digits", value);
-            }
-        }
-        public static int tolerance
-        {
-            get
-            {
-                return EditorPrefs.GetInt("Sonic853.TotpGenerator.tolerance", 1);
-            }
-            set
-            {
-                if (value < 0)
-                {
-                    value = 0;
-                }
-                EditorPrefs.SetInt("Sonic853.TotpGenerator.tolerance", value);
-            }
-        }
-        public static bool autoCreateKey
-        {
-            get
-            {
-                return EditorPrefs.GetBool("Sonic853.TotpGenerator.autoCreateKey", true);
-            }
-            set
-            {
-                EditorPrefs.SetBool("Sonic853.TotpGenerator.autoCreateKey", value);
-            }
-        }
-        public static string key
-        {
-            get
-            {
-                return EditorPrefs.GetString("Sonic853.TotpGenerator.key", "");
-            }
-            set
-            {
-                EditorPrefs.SetString("Sonic853.TotpGenerator.key", value);
-            }
-        }
-        public static string secret
-        {
-            get
-            {
-                if (string.IsNullOrEmpty(key))
-                {
-                    return "";
-                }
-                return Base32Encode(key);
-            }
-            // set
-            // {
-            //     key = Base32Decode(value);
-            // }
-        }
+        private static readonly string base_32_chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
+        private static readonly string[] Base32Chars = new string[] { "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z", "2", "3", "4", "5", "6", "7" };
+        private static readonly string lower = "abcdefghijklmnopqrstuvwxyz";
+        private static readonly string upper = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+        private static readonly string numbers = "0123456789";
+        private static readonly string special = @"!@#$%^&*()-_ []{}<>~`+=,.;:/?|";
+        static Models.TotpSettings totpSettings = Models.TotpSettings.instance;
         static VisualElement root;
+        static TextField labelField;
         static TextField issuerField;
         static TextField keyField;
         static TextField secretField;
@@ -236,22 +134,35 @@ namespace Sonic853.TotpGen
         {
             root = new VisualElement();
             root.styleSheets.Add(AssetDatabase.LoadAssetAtPath<StyleSheet>(s_StyleSheetPath));
+            totpSettings = Models.TotpSettings.instance;
+            labelField = new TextField(_("标签"))
+            {
+                value = totpSettings.label
+            };
+            labelField.RegisterValueChangedCallback((e) =>
+            {
+                totpSettings.label = e.newValue;
+                totpSettings.Save();
+            });
+            root.Add(labelField);
             issuerField = new TextField(_("名称"))
             {
-                value = issuer
+                value = totpSettings.issuer
             };
             issuerField.RegisterValueChangedCallback((e) =>
             {
-                issuer = e.newValue;
+                totpSettings.issuer = e.newValue;
+                totpSettings.Save();
             });
             root.Add(issuerField);
-            PopupField<string> tOTPTypeField = new PopupField<string>(new List<string> { "SHA1", "SHA256", "SHA512" }, algorithm)
+            PopupField<string> tOTPTypeField = new PopupField<string>(new List<string> { "SHA1", "SHA256", "SHA512" }, totpSettings.algorithm)
             {
                 label = _("TOTP 算法："),
             };
             tOTPTypeField.RegisterValueChangedCallback((e) =>
             {
-                algorithm = e.newValue;
+                totpSettings.algorithm = e.newValue;
+                totpSettings.Save();
             });
             // tOTPTypeField 只读
             // tOTPTypeField.SetEnabled(false);
@@ -259,60 +170,70 @@ namespace Sonic853.TotpGen
             IntegerField intervalField = new IntegerField()
             {
                 label = _("时间间隔："),
-                value = period,
+                value = totpSettings.period,
             };
             intervalField.RegisterValueChangedCallback((e) =>
             {
-                period = e.newValue;
+                totpSettings.period = e.newValue;
+                totpSettings.Save();
             });
             root.Add(intervalField);
             IntegerField digitsField = new IntegerField()
             {
                 label = _("验证码位数："),
-                value = digits,
+                value = totpSettings.digits,
             };
             digitsField.RegisterValueChangedCallback((e) =>
             {
-                digits = e.newValue;
+                totpSettings.digits = e.newValue;
+                totpSettings.Save();
             });
             root.Add(digitsField);
             IntegerField toleranceField = new IntegerField()
             {
                 label = _("容错倍数："),
-                value = tolerance,
+                value = totpSettings.tolerance,
             };
             toleranceField.RegisterValueChangedCallback((e) =>
             {
-                tolerance = e.newValue;
+                totpSettings.tolerance = e.newValue;
+                totpSettings.Save();
             });
             root.Add(toleranceField);
             Toggle autoCreateKeyField = new Toggle(_("自动创建密钥"))
             {
-                value = autoCreateKey,
+                value = totpSettings.autoCreateKey,
             };
             root.Add(autoCreateKeyField);
             keyField = new TextField()
             {
                 label = _("密钥："),
-                value = key,
+                value = totpSettings.key,
             };
             root.Add(keyField);
             autoCreateKeyField.RegisterValueChangedCallback((e) =>
             {
-                autoCreateKey = e.newValue;
-                keyField.isReadOnly = autoCreateKey;
+                totpSettings.autoCreateKey = e.newValue;
+                keyField.isReadOnly = totpSettings.autoCreateKey;
+                totpSettings.Save();
             });
             secretField = new TextField
             {
                 label = _("编译后密钥："),
-                value = secret,
+                value = totpSettings.secret,
                 isReadOnly = true
             };
             // keyField.isPasswordField = true;
             keyField.RegisterValueChangedCallback((e) =>
             {
-                key = e.newValue;
-                secretField.value = secret;
+                totpSettings.key = e.newValue;
+                secretField.value = totpSettings.secret;
+                // totpSettings.Save();
+            });
+            // 当 keyField 失去焦点时保存
+            keyField.RegisterCallback<BlurEvent>((e) =>
+            {
+                totpSettings.Save();
             });
             root.Add(secretField);
             Button resetKeyButton = new Button(() =>
@@ -326,6 +247,7 @@ namespace Sonic853.TotpGen
             Button generateKeyButton = new Button(() =>
             {
                 Generate();
+                totpSettings.Save();
             })
             {
                 text = _("生成密钥二维码"),
@@ -350,7 +272,7 @@ namespace Sonic853.TotpGen
             root.Add(verifyButton);
             copyKeyButton = new Button(() =>
             {
-                EditorGUIUtility.systemCopyBuffer = secret;
+                EditorGUIUtility.systemCopyBuffer = totpSettings.secret;
                 EditorUtility.DisplayDialog(_("复制成功"), _("密钥已复制到剪贴板"), _("确定"));
             })
             {
@@ -397,21 +319,20 @@ namespace Sonic853.TotpGen
             qrCodeImage.image = null;
             verifyButton.SetEnabled(false);
             copyKeyButton.SetEnabled(false);
-            if (autoCreateKey || string.IsNullOrEmpty(key))
+            totpSettings = Models.TotpSettings.instance;
+            if (totpSettings.autoCreateKey || string.IsNullOrEmpty(totpSettings.key))
             {
-                key = GeneratePassword(20, true, true);
+                totpSettings.key = GeneratePassword(20, true, true);
             }
-            if (key.Length != 20)
+            if (totpSettings.key.Length != 20)
             {
                 EditorUtility.DisplayDialog(_("错误"), _("密钥长度必须为20位"), _("确定"));
                 return;
             }
-            string _issuer = string.IsNullOrEmpty(issuer) ? ("TOTP%20" + secret.Substring(0, 16)) : UnityWebRequest.EscapeURL(issuer);
-            // qrCodeImage.image = GenerateQR("otpauth://totp/VRChat%20Udon%20TOTP?algorithm=SHA1&digits=" + digits + "&period=" + period + "&issuer=" + _issuer + "&secret=" + Base32Encode(key));
-            qrCodeImage.image = GenerateQR(string.Format("otpauth://totp/{0}?algorithm={1}&digits={2}&period={3}&issuer={4}&secret={5}", "VRChat%20Udon%20TOTP", algorithm, digits, period, _issuer, Base32Encode(key)));
+            qrCodeImage.image = GenerateQR(totpSettings.GetUrl());
             verifyButton.SetEnabled(true);
-            keyField.value = key;
-            secretField.value = secret;
+            keyField.value = totpSettings.key;
+            secretField.value = totpSettings.secret;
         }
         static void Verify(string code)
         {
@@ -420,16 +341,16 @@ namespace Sonic853.TotpGen
                 EditorUtility.DisplayDialog(_("错误"), _("请输入验证码"), _("确定"));
                 return;
             }
-            if (code.Length != digits)
+            if (code.Length != totpSettings.digits)
             {
-                EditorUtility.DisplayDialog(_("错误"), string.Format(_("验证码长度必须为{0}位"), digits.ToString()), _("确定"));
+                EditorUtility.DisplayDialog(_("错误"), string.Format(_("验证码长度必须为{0}位"), totpSettings.digits.ToString()), _("确定"));
                 return;
             }
-            TOTP.key = key;
-            TOTP.period = period;
-            TOTP.digits = digits;
-            TOTP.tolerance = tolerance;
-            switch (algorithm)
+            TOTP.key = totpSettings.key;
+            TOTP.period = totpSettings.period;
+            TOTP.digits = totpSettings.digits;
+            TOTP.tolerance = totpSettings.tolerance;
+            switch (totpSettings.algorithm)
             {
                 case "SHA1":
                 {
@@ -464,7 +385,8 @@ namespace Sonic853.TotpGen
         }
         static void Reset()
         {
-            key = "";
+            totpSettings = Models.TotpSettings.instance;
+            totpSettings.key = "";
             keyField.value = "";
             secretField.value = "";
             if (qrCodeImage.image != null)
