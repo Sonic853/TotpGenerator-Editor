@@ -1,6 +1,8 @@
 {
     "name": "Sonic853.TotpGen",
-    "references": [],
+    "references": [
+        "GUID:65ff77217d4919e4cae083312fe41207"
+    ],
     "includePlatforms": [
         "Editor"
     ],

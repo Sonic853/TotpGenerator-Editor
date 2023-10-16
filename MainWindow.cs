@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using Sonic853.gettext;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
