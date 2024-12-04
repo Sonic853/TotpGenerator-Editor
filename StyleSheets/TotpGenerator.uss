@@ -1,0 +1,8 @@
+
+.tips {
+    margin: 5px;
+    padding: 5px;
+    white-space: Normal;
+    font-size: 14px;
+    background-color: rgba(0, 0, 0, 0.2);
+}

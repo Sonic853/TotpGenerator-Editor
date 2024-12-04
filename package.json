@@ -1,0 +1,21 @@
+{
+  "name": "com.sonic853.totpgenerator",
+  "version": "1.0.0",
+  "displayName": "Sonic853 - Totp Generator",
+  "description": "Totp 生成器",
+  "unity": "2022.3",
+  "homepage": "https://github.com/Sonic853/TotpGenerator-Editor",
+  "documentationUrl": "https://github.com/Sonic853/TotpGenerator-Editor",
+  "changelogUrl": "https://github.com/Sonic853/TotpGenerator-Editor/releases",
+  "licensesUrl": "https://github.com/Sonic853/TotpGenerator-Editor/blob/master/LICENSE",
+  "license": "LGPL-3.0-or-later",
+  "keywords": [],
+  "author": {
+    "name": "Sonic853",
+    "email": "sonic853@qq.com",
+    "url": "https://github.com/Sonic853"
+  },
+  "legacyFolders": {
+    "Assets\\853Lab\\UdonSharp\\TotpGenerator": "f551c517e9d0b894ebd78713cffa3919"
+  }
+}

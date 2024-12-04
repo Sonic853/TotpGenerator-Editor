@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using UnityEditor;
-using UnityEditor.UIElements;
 using UnityEngine;
-using UnityEngine.Networking;
 using UnityEngine.UIElements;
 using ZXing;
 using ZXing.QrCode;
@@ -14,8 +13,8 @@ namespace Sonic853.TotpGen
 {
     public class TotpGenerator
     {
-        private static readonly string path = "Assets/853Lab/TotpGenerator/";
-        private static readonly string s_StyleSheetPath = path + "StyleSheets/TotpGenerator.uss";
+        private static readonly string path = Path.Combine("Packages", "com.sonic853.totpgenerator");
+        private static readonly string s_StyleSheetPath = Path.Combine(path, "StyleSheets", "TotpGenerator.uss");
         private static readonly string base_32_chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
         private static readonly string[] Base32Chars = new string[] { "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z", "2", "3", "4", "5", "6", "7" };
         private static readonly string lower = "abcdefghijklmnopqrstuvwxyz";

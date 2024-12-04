@@ -14,6 +14,9 @@ msgstr ""
 msgid "Totp 生成器"
 msgstr "Totp 生成器"
 
+msgid "标签"
+msgstr "标签"
+
 msgid "名称"
 msgstr "名称"
 

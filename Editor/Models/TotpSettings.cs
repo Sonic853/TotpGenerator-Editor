@@ -11,7 +11,7 @@ namespace Sonic853.TotpGen.Models
     //           FilePathAttribute.Location.ProjectFolder)]
     public sealed class TotpSettings : ScriptableObject
     {
-        private static string path = "Assets/853Lab/TotpGenerator/TotpSettings.asset";
+        private static string path = Path.Combine("Assets", "853Lab", "TotpGenerator", "TotpSettings.asset");
         public static TotpSettings instance
         {
             get
@@ -20,6 +20,11 @@ namespace Sonic853.TotpGen.Models
                 if (settings == null)
                 {
                     settings = CreateInstance<TotpSettings>();
+                    var dir = Path.GetDirectoryName(path);
+                    if (!Directory.Exists(dir))
+                    {
+                        Directory.CreateDirectory(dir);
+                    }
                     AssetDatabase.CreateAsset(settings, path);
                     AssetDatabase.SaveAssets();
                 }
@@ -73,6 +78,11 @@ namespace Sonic853.TotpGen.Models
         public string secret { get => TotpGenerator.Base32Encode(key); }
         public void Save()
         {
+            var dir = Path.GetDirectoryName(path);
+            if (!Directory.Exists(dir))
+            {
+                Directory.CreateDirectory(dir);
+            }
             if (File.Exists(path))
             {
                 EditorUtility.SetDirty(this);

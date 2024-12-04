@@ -1,15 +1,15 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
-using Sonic853.gettext;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
+using System.IO;
 
 namespace Sonic853.TotpGen
 {
     public class MainWindow : EditorWindow
     {
-        private static readonly string path = "Assets/853Lab/TotpGenerator/";
+        private static readonly string path = Path.Combine("Packages", "com.sonic853.totpgenerator");
         public static PoReader poReader;
         static MainWindow instance;
         public static MainWindow getInstance
@@ -31,7 +31,7 @@ namespace Sonic853.TotpGen
             }
         }
         public static readonly string OpenWindowCommand = nameof(OpenMainWindowCommand);
-        [MenuItem("853Lab/Totp Generator", false, 3010)]
+        [MenuItem("Window/853Lab/Totp Generator", false, 3010)]
         public static void OpenMainWindowCommand()
         {
             if (CommandService.Exists(OpenWindowCommand))
@@ -49,7 +49,7 @@ namespace Sonic853.TotpGen
         }
         public void OnEnable()
         {
-            poReader = new PoReader(path + "Editor/Language/" + EditorPrefs.GetString("Editor.kEditorLocale", "ChineseSimplified") + ".po");
+            poReader = new PoReader(Path.Combine(path, "Editor", "Language", $"{EditorPrefs.GetString("Editor.kEditorLocale", "ChineseSimplified")}.po"));
             VisualElement root = rootVisualElement;
             ScrollView scrollView = new ScrollView();
             scrollView.AddToClassList("main");
