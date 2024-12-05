@@ -110,14 +110,15 @@ namespace Sonic853.TotpGen
         }
         private static Color32[] Encode(string textForEncoding, int width, int height)
         {
-            BarcodeWriter writer = new BarcodeWriter
+            var writer = new BarcodeWriter<Color32[]>
             {
                 Format = BarcodeFormat.QR_CODE,
                 Options = new QrCodeEncodingOptions
                 {
                     Height = height,
                     Width = width
-                }
+                },
+                Renderer = new Color32Renderer()
             };
             return writer.Write(textForEncoding);
         }
@@ -330,8 +331,8 @@ namespace Sonic853.TotpGen
             }
             qrCodeImage.image = GenerateQR(totpSettings.GetUrl());
             verifyButton.SetEnabled(true);
-            keyField.value = totpSettings.key;
-            secretField.value = totpSettings.secret;
+            keyField.SetValueWithoutNotify(totpSettings.key);
+            secretField.SetValueWithoutNotify(totpSettings.secret);
         }
         static void Verify(string code)
         {
@@ -352,25 +353,25 @@ namespace Sonic853.TotpGen
             switch (totpSettings.algorithm)
             {
                 case "SHA1":
-                {
-                    TOTP.mode = 0;
-                }
-                break;
+                    {
+                        TOTP.mode = 0;
+                    }
+                    break;
                 case "SHA256":
-                {
-                    TOTP.mode = 1;
-                }
-                break;
+                    {
+                        TOTP.mode = 1;
+                    }
+                    break;
                 case "SHA512":
-                {
-                    TOTP.mode = 2;
-                }
-                break;
+                    {
+                        TOTP.mode = 2;
+                    }
+                    break;
                 default:
-                {
-                    TOTP.mode = 0;
-                }
-                break;
+                    {
+                        TOTP.mode = 0;
+                    }
+                    break;
             }
             if (TOTP.VerifyTotp(code))
             {
@@ -386,8 +387,8 @@ namespace Sonic853.TotpGen
         {
             totpSettings = Models.TotpSettings.instance;
             totpSettings.key = "";
-            keyField.value = "";
-            secretField.value = "";
+            keyField.SetValueWithoutNotify("");
+            secretField.SetValueWithoutNotify("");
             if (qrCodeImage.image != null)
             {
                 UnityEngine.Object.DestroyImmediate(qrCodeImage.image);
